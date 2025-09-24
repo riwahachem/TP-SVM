@@ -1,0 +1,32 @@
+---
+title: "TP 3 : Support Vector Machine (SVM)"
+author: ["Hachem Reda Riwa", "El Mazzouji Wahel"]
+format:
+  html:
+    toc: true
+    number-sections: true
+  pdf:
+    toc: true
+execute:
+  echo: true
+  warning: false
+  cache: true
+---
+
+### Question 1
+
+### Question 2
+
+## SVM GUI
+
+### Question 3
+
+## Classification de visages
+
+### Question 4
+
+### Question 5
+
+### Question 6
+
+### Question 7

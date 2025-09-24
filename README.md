@@ -1,4 +1,4 @@
-# TP SVM - HACHEM REDA Riwa, EL MAZZOUJI Wahel
+# TP SVM 
 
 ## Comment compiler
 - PDF : `quarto render tp.qmd --to pdf` (LaTeX requis)
