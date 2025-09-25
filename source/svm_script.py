@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 
-from svm_source import *
+from source.svm_source import *
 from sklearn import svm
 from sklearn import datasets
 from sklearn.utils import shuffle
