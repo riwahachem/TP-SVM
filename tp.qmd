@@ -3,14 +3,34 @@ title: "TP 3 : Support Vector Machine (SVM)"
 author: ["Hachem Reda Riwa", "El Mazzouji Wahel"]
 format:
   html:
+    theme: flatly
     toc: true
-    number-sections: true
+    toc-location: left
+    toc-depth: 3
+    number-sections: false
+    code-copy: true
+    code-tools: true    
+    code-fold: show 
+    code-line-numbers: true
+    smooth-scroll: true
+    anchor-sections: true
+    df-print: paged
+    fig-align: center
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    css: styles.css    
   pdf:
+    documentclass: scrartcl
     toc: true
+    number-sections: false
+    geometry: "margin=2.2cm"
+    fig-pos: "H"
 execute:
-  echo: true
+  echo: false 
   warning: false
   cache: true
+jupyter: python3
+freeze: auto  
 ---
 
 ```{python}
@@ -79,8 +99,6 @@ parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
 clf = SVC()
 clf_poly = GridSearchCV(clf, parameters, n_jobs=-1)
 clf_poly.fit(X_train, Y_train)
-#clf_poly = # ... TODO
-# ... TODO
 
 print(clf_poly.best_params_)
 print('Generalization score for polynomial kernel: %s, %s' %
@@ -197,7 +215,6 @@ t0 = time()
 Cs = 10. ** np.arange(-5, 6)
 scores = []
 for C in Cs:
-    # TODO ...
     clf = SVC(kernel='linear', C=C)
     clf.fit(X_train, y_train)
     scores.append(clf.score(X_test, y_test))
@@ -260,7 +277,6 @@ def run_svm_cv(_X, _y):
           (_clf_linear.score(_X_train, _y_train), _clf_linear.score(_X_test, _y_test)))
 
 print("Score sans variable de nuisance")
-# TODO ... use run_svm_cv on original data
 run_svm_cv(X, y)
 
 print("Score avec variable de nuisance")
@@ -271,7 +287,6 @@ noise = sigma * np.random.randn(n_samples, 300, )
 #with gaussian coefficients of std sigma
 X_noisy = np.concatenate((X, noise), axis=1)
 X_noisy = X_noisy[np.random.permutation(X.shape[0])]
-# TODO ... use run_svm_cv on noisy data
 run_svm_cv(X_noisy, y)
 ```
 
@@ -282,7 +297,6 @@ print("Score apres reduction de dimension")
 
 n_components = 200  # jouer avec ce parametre
 pca = PCA(n_components=n_components).fit(X_noisy)
-# ... TODO Apply PCA and run_svm to the noisy data
 X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
