@@ -129,13 +129,17 @@ plt.title("polynomial kernel")
 plt.tight_layout()
 plt.draw()
 ```
-
+Sur le dataset Iris, nous avons entraîné un SVM à noyau linéaire et un SVM à noyau polynomial.
+Avec le noyau linéaire, le modèle obtient un score élevé en entraînement et en test, ce qui confirme que les données sont quasiment séparables linéairement.
+Avec le noyau polynomial, les résultats sont proches, mais la frontière est plus complexe et peut légèrement sur-apprendre selon le degré choisi.
+Cela illustre que le noyau polynomial n’apporte pas forcément de gain lorsque la séparation linéaire est déjà suffisante.
 ## SVM GUI
 
 ### Question 3
 
-```{python}
-```
+Dans le script `svm_gui.py`, le paramètre de régularisation C contrôle la complexité du classifieur dans la mesure où il détermine le coût d’une mauvaise classification : plus C est grand, plus la règle obtenue est complexe. Ce paramètre peut être ajusté directement depuis l’interface graphique.
+Lorsque l’on sélectionne un noyau linéaire et que l’on diminue la valeur de C, on constate que la frontière de décision devient moins stricte. Concrètement, certains points, bien que séparables, se retrouvent du mauvais côté de l’hyperplan. Ainsi, le modèle accepte davantage d’erreurs d’entraînement afin de maximiser la marge séparatrice.
+Dans un contexte de classes déséquilibrées (par exemple 90 % d’exemples d’une classe contre 10 % pour l’autre), une valeur faible de C amplifie ce déséquilibre, c'est à dire que le classifieur privilégie la classe majoritaire et néglige les erreurs sur la classe minoritaire.
 
 ## Classification de visages
 
@@ -303,5 +307,7 @@ run_svm_cv(X_pca, y)
 
 ### Question 7
 
-```{python}
-```
+Dans le script, la normalisation est faite avant de séparer les données en apprentissage et test, par les lignes :
+`X -= np.mean(X, axis=0)` et `X /= np.std(X, axis=0)`.
+Cela pose problème car les statistiques du test (moyenne, variance) sont utilisées pour transformer les données d’entraînement.
+La bonne pratique consiste à calculer la normalisation uniquement sur l’échantillon d’apprentissage, puis à appliquer cette transformation au test. Sinon, les performances rapportées ne reflètent pas la capacité réelle de généralisation du modèle.
