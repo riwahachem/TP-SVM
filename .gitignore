@@ -23,7 +23,7 @@ scikit_learn_data/
 *.log
 *.aux
 *.out
-*.html  # si tu ne veux versionner aucun .html, garde cette ligne
+*.html
 
 # VSCode
 .vscode/
