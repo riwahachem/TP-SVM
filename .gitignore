@@ -1,5 +1,33 @@
-*.html
-.venv/
-.__pycache__/
+# Fichiers compilés Python
+__pycache__/
 *.pyc
+
+# Environnement virtuel
+.venv/
+
+# Données Python
+*.egg-info/
+*.pkl
+*.h5
+
+# Jupyter
+.ipynb_checkpoints/
+.jupyter_cache/
+
+# Données locales (non versionnées)
+scikit_learn_data/
+
+# Fichiers générés par Quarto / RMarkdown
+*.nb.html
+*.nb.md
+*.log
+*.aux
+*.out
+*.html  # si tu ne veux versionner aucun .html, garde cette ligne
+
+# VSCode
+.vscode/
+
+# Fichiers système
 .DS_Store
+Thumbs.db
