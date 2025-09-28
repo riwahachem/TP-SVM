@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 
-from source.svm_source import *
+from svm_source import *
 from sklearn import svm
 from sklearn import datasets
 from sklearn.utils import shuffle
@@ -95,11 +95,15 @@ X = X[y != 0, :2]
 y = y[y != 0]
 
 # split train test
-X, y = shuffle(X, y)
-X_train = X[::2]
-Y_train = y[::2].astype(int)
-X_test = X[1::2]
-Y_test = y[1::2].astype(int)
+# split train/test set (25% test, 75% train)
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+
+# On convertit les labels en entiers
+Y_train = Y_train.astype(int)
+Y_test = Y_test.astype(int)
+
 
 # ... TODO
 ###############################################################################
@@ -344,7 +348,7 @@ run_svm_cv(X_noisy, y)
 # Q6
 print("Score apres reduction de dimension")
 
-n_components = 20  # jouer avec ce parametre
+n_components = 200  # jouer avec ce parametre
 pca = PCA(n_components=n_components).fit(X_noisy)
 # ... TODO Apply PCA and run_svm to the noisy data
 X_pca = pca.transform(X_noisy)
