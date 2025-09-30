@@ -1,6 +1,7 @@
 ---
 title: "TP 3 : Support Vector Machine (SVM)"
 author: ["Hachem Reda Riwa", "El Mazzouji Wahel"]
+lang: fr
 format:
   html:
     theme: flatly
@@ -18,7 +19,6 @@ format:
     fig-align: center
     fig-cap-location: bottom
     tbl-cap-location: top
-    css: styles.css    
   pdf:
     documentclass: scrartcl
     toc: true
@@ -82,14 +82,18 @@ Y_test = Y_test.astype(int)
 parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 200))}
 clf = SVC()
 clf_linear = GridSearchCV(clf, parameters, n_jobs=-1)
-clf_linear.fit(X_train, Y_train)# ... TODO
+clf_linear.fit(X_train, Y_train)
 
-# compute the score
-print(clf_linear.best_params_)
-print('Generalization score for linear kernel: %s, %s' %
-      (clf_linear.score(X_train, Y_train),
-       clf_linear.score(X_test, Y_test)))
+# Résultats
+best_C = float(clf_linear.best_params_['C'])
+print(f"Meilleur paramètre C : {best_C:.3f} (kernel = linéaire)")
+print("Score entraînement :", round(clf_linear.score(X_train, Y_train),3))
+print("Score test :", round(clf_linear.score(X_test, Y_test),3))
 ```
+
+Avec un SVM à noyau linéaire entraîné sur les classes 1 et 2 du jeu de données Iris, le meilleur paramètre trouvé est C ≈ 0.841.
+
+Le modèle atteint un score d’entraînement de 0.747 et un score de test de 0.680.
 
 ### Question 2
 
@@ -103,10 +107,13 @@ clf = SVC()
 clf_poly = GridSearchCV(clf, parameters, n_jobs=-1)
 clf_poly.fit(X_train, Y_train)
 
-print(clf_poly.best_params_)
-print('Generalization score for polynomial kernel: %s, %s' %
-      (clf_poly.score(X_train, Y_train),
-       clf_poly.score(X_test, Y_test)))
+# Résultats
+best_params = clf_poly.best_params_
+print(f"Meilleurs paramètres (poly) : C = {best_params['C']:.3f}, "
+      f"degré = {best_params['degree']}, gamma = {best_params['gamma']}")
+
+print(f"Score entraînement : {clf_poly.score(X_train, Y_train):.3f}")
+print(f"Score test : {clf_poly.score(X_test, Y_test):.3f}")
 
 # display your results using frontiere (svm_source.py)
 def f_linear(xx):
@@ -119,23 +126,24 @@ plt.ion()
 plt.figure(figsize=(15, 5))
 plt.subplot(131)
 plot_2d(X, y)
-plt.title("iris dataset")
+plt.title("Données Iris (classes 1 et 2)")
 
 plt.subplot(132)
 frontiere(f_linear, X, y)
-plt.title("linear kernel")
+plt.title("Frontière – noyau linéaire")
 
 plt.subplot(133)
 frontiere(f_poly, X, y)
 
-plt.title("polynomial kernel")
+plt.title("Frontière – noyau polynomial")
 plt.tight_layout()
 plt.draw()
 ```
 Sur le dataset Iris, nous avons entraîné un SVM à noyau linéaire et un SVM à noyau polynomial.
-Avec le noyau linéaire, le modèle obtient un score élevé en entraînement et en test, ce qui confirme que les données sont quasiment séparables linéairement.
-Avec le noyau polynomial, les résultats sont proches, mais la frontière est plus complexe et peut légèrement sur-apprendre selon le degré choisi.
-Cela illustre que le noyau polynomial n’apporte pas forcément de gain lorsque la séparation linéaire est déjà suffisante.
+Avec le noyau linéaire, le modèle atteint de bons scores en entraînement comme en test, ce qui montre que les deux classes sont presque séparables par une frontière droite.
+Avec le noyau polynomial, les résultats restent similaires mais la frontière devient plus complexe et peut conduire à un léger sur-apprentissage selon le degré choisi.
+Cela illustre que, dans un espace déjà quasi linéairement séparable, un noyau polynomial n’apporte pas de gain significatif.
+
 ## SVM GUI
 
 ### Question 3
@@ -214,8 +222,7 @@ images_train, images_test = images[
 ### Question 4
 
 ```{python}
-print("--- Linear kernel ---")
-print("Fitting the classifier to the training set")
+print("=== SVM linéaire : influence de C ===")
 t0 = time()
 
 # fit a classifier (linear) and test all the Cs
@@ -227,16 +234,20 @@ for C in Cs:
     scores.append(clf.score(X_test, y_test))
 
 ind = np.argmax(scores)
-print("Best C: {}".format(Cs[ind]))
+best_C, best_score = Cs[ind], scores[ind]
+print(f"Meilleur C : {best_C:.1e}")
+print(f"Score test optimal : {best_score:.3f}")
 
 plt.figure()
 plt.plot(Cs, scores)
 plt.xlabel("Parametres de regularisation C")
 plt.ylabel("Scores d'apprentissage")
+plt.title("Influence de C sur la performance")
 plt.xscale("log")
+plt.grid(True)
+plt.legend()
 plt.tight_layout()
 plt.show()
-print("Best score: {}".format(np.max(scores)))
 
 print("Predicting the people names on the testing set")
 t0 = time()
@@ -246,10 +257,12 @@ clf = SVC(kernel='linear', C=Cs[ind])
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
-print("done in %0.3fs" % (time() - t0))
+print("Réalisé en %0.3fs" % (time() - t0))
 # The chance level is the accuracy that will be reached when constantly predicting the majority class.
-print("Chance level : %s" % max(np.mean(y), 1. - np.mean(y)))
-print("Accuracy : %s" % clf.score(X_test, y_test))
+
+print(f"Niveau de hasard (majorité) : {max(np.mean(y), 1.-np.mean(y)):.3f}")
+print(f"Accuracy finale sur le test : {clf.score(X_test, y_test):.3f}")
+
 
 # Qualitative evaluation of the predictions using matplotlib
 
@@ -259,17 +272,23 @@ prediction_titles = [title(y_pred[i], y_test[i], names)
 plot_gallery(images_test, prediction_titles)
 plt.show()
 
-####################################################################
 # Look at the coefficients
 plt.figure()
 plt.imshow(np.reshape(clf.coef_, (h, w)))
+plt.colorbar()
+plt.title("Coefficients appris par le SVM ")
 plt.show()
 ```
+
+En faisant varier le paramètre C, on observe que les performances augmentent jusqu’à un optimum puis se stabilisent.
+Le meilleur résultat est obtenu pour C ≈ $1.0 \times 10^{-3}$ avec une accuracy d’environ 0.916 sur l’échantillon de test.
+Lorsque C est trop petit, le modèle sous-apprend (fort biais), et lorsque C est trop grand, il risque de sur-apprendre.
+La visualisation des coefficients montre quelles zones du visage contribuent le plus à la décision.
 
 ### Question 5
 
 ```{python}
-def run_svm_cv(_X, _y):
+def run_svm_cv(_X, _y, label=""):
     _indices = np.random.permutation(_X.shape[0])
     _train_idx, _test_idx = _indices[:_X.shape[0] // 2], _indices[_X.shape[0] // 2:]
     _X_train, _X_test = _X[_train_idx, :], _X[_test_idx, :]
@@ -279,12 +298,13 @@ def run_svm_cv(_X, _y):
     _svr = svm.SVC()
     _clf_linear = GridSearchCV(_svr, _parameters)
     _clf_linear.fit(_X_train, _y_train)
+    score_train = _clf_linear.score(_X_train, _y_train)
+    score_test  = _clf_linear.score(_X_test, _y_test)
 
-    print('Generalization score for linear kernel: %s, %s \n' %
-          (_clf_linear.score(_X_train, _y_train), _clf_linear.score(_X_test, _y_test)))
+    print(f"[{label}] Score entraînement : {score_train:.3f} | Score test : {score_test:.3f}")
 
 print("Score sans variable de nuisance")
-run_svm_cv(X, y)
+run_svm_cv(X, y, label="Données originales")
 
 print("Score avec variable de nuisance")
 n_features = X.shape[1]
@@ -297,6 +317,11 @@ X_noisy = X_noisy[np.random.permutation(X.shape[0])]
 run_svm_cv(X_noisy, y)
 ```
 
+Sans ajout de variables de nuisance, le SVM linéaire obtient une accuracy parfaite à l’entraînement (1.0) et une très bonne performance en test :`r {score_test:.3f}`.
+En revanche, lorsque l’on ajoute 300 variables bruitées, la performance en test chute fortement (`r {score_test_noisy:.3f}`), tandis que l’entraînement reste à 1.0.
+
+Cela montre que l’ajout de dimensions non informatives dégrade la capacité de généralisation : le classifieur se retrouve à sur-apprendre sur des données bruitées, ce qui entraîne une baisse nette de la précision sur de nouvelles données.
+
 ### Question 6
 
 ```{python}
@@ -307,6 +332,8 @@ pca = PCA(n_components=n_components).fit(X_noisy)
 X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
+
+Avec la réduction de dimension par PCA, le modèle conserve une accuracy parfaite sur l’entraînement mais la performance en test reste faible (≈ `r {score_test_pca:.3f}` pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
 
 ### Question 7
 
