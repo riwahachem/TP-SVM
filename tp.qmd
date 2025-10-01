@@ -92,8 +92,7 @@ print("Score test :", round(clf_linear.score(X_test, Y_test),3))
 ```
 
 Avec un SVM à noyau linéaire entraîné sur les classes 1 et 2 du jeu de données Iris, le meilleur paramètre trouvé est C ≈ 0.841.
-
-Le modèle atteint un score d’entraînement de 0.747 et un score de test de 0.680.
+Le modèle atteint un score d’entraînement de 74% et un score de test de 68%.
 
 ### Question 2
 
@@ -139,10 +138,12 @@ plt.title("Frontière – noyau polynomial")
 plt.tight_layout()
 plt.draw()
 ```
-Sur le dataset Iris, nous avons entraîné un SVM à noyau linéaire et un SVM à noyau polynomial.
-Avec le noyau linéaire, le modèle atteint de bons scores en entraînement comme en test, ce qui montre que les deux classes sont presque séparables par une frontière droite.
-Avec le noyau polynomial, les résultats restent similaires mais la frontière devient plus complexe et peut conduire à un léger sur-apprentissage selon le degré choisi.
-Cela illustre que, dans un espace déjà quasi linéairement séparable, un noyau polynomial n’apporte pas de gain significatif.
+
+Un SVM avec noyau polynomial a été testé en faisant varier les paramètres C, gamma et le degré du polynôme.
+
+Le meilleur modèle polynomial obtenu correspond en réalité à un polynôme de degré 1, ce qui revient à un noyau linéaire.
+On observe que les scores sont identiques à ceux obtenus avec le SVM linéaire (74% sur l’entraînement et 68% sur le test).
+La frontière de décision est donc la même qu’avec le noyau linéaire, ce qui montre que, dans ce cas, l’utilisation d’un noyau polynomial n’apporte pas d’amélioration.
 
 ## SVM GUI
 
@@ -155,6 +156,7 @@ Dans un contexte de classes déséquilibrées (par exemple 90 % d’exemples d�
 ## Classification de visages
 
 ```{python}
+#| include: false
 import os, ssl, certifi, urllib.request
 # 1) pointer vers le bundle certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -231,7 +233,7 @@ scores = []
 for C in Cs:
     clf = SVC(kernel='linear', C=C)
     clf.fit(X_train, y_train)
-    scores.append(clf.score(X_test, y_test))
+    scores.append(clf.score(X_train, y_train))
 
 ind = np.argmax(scores)
 best_C, best_score = Cs[ind], scores[ind]
@@ -249,7 +251,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-print("Predicting the people names on the testing set")
+print("Prédiction des noms des personnes sur l’échantillon de test")
 t0 = time()
 
 # predict labels for the X_test images with the best classifier
@@ -261,8 +263,16 @@ print("Réalisé en %0.3fs" % (time() - t0))
 # The chance level is the accuracy that will be reached when constantly predicting the majority class.
 
 print(f"Niveau de hasard (majorité) : {max(np.mean(y), 1.-np.mean(y)):.3f}")
-print(f"Accuracy finale sur le test : {clf.score(X_test, y_test):.3f}")
+print(f"Taux de précision final sur le test : {clf.score(X_test, y_test):.3f}")
+```
 
+Lorsque C est très petit, le modèle est trop régularisé et n’arrive pas à bien séparer les classes (sous-apprentissage).
+Autour de C ≈ $1.0 \times 10^{-3}$ , la performance devient optimale et se stabilise.
+Pour des valeurs trop grandes de C, le modèle risque de sur-apprendre sans gain significatif.
+Le meilleur compromis est obtenu avec C ≈ $1.0 \times 10^{-3}$, qui donne un taux de précision de `r clf.score(X_test, y_test)*100:.1f`% sur le test, bien supérieur au hasard (`r max(np.mean(y), 1.-np.mean(y)):.1f`%).
+
+
+```{python}
 
 # Qualitative evaluation of the predictions using matplotlib
 
@@ -271,6 +281,11 @@ prediction_titles = [title(y_pred[i], y_test[i], names)
 
 plot_gallery(images_test, prediction_titles)
 plt.show()
+```
+
+La prédiction sur l’échantillon de test montre que le modèle arrive à bien distinguer les deux individus.
+
+```{python}
 
 # Look at the coefficients
 plt.figure()
@@ -280,10 +295,7 @@ plt.title("Coefficients appris par le SVM ")
 plt.show()
 ```
 
-En faisant varier le paramètre C, on observe que les performances augmentent jusqu’à un optimum puis se stabilisent.
-Le meilleur résultat est obtenu pour C ≈ $1.0 \times 10^{-3}$ avec une accuracy d’environ 0.916 sur l’échantillon de test.
-Lorsque C est trop petit, le modèle sous-apprend (fort biais), et lorsque C est trop grand, il risque de sur-apprendre.
-La visualisation des coefficients montre quelles zones du visage contribuent le plus à la décision.
+La visualisation des coefficients montre que le SVM capte les traits distinctifs des visages, confirmant l’efficacité de cette approche pour la classification faciale.
 
 ### Question 5
 
@@ -314,10 +326,10 @@ noise = sigma * np.random.randn(n_samples, 300, )
 #with gaussian coefficients of std sigma
 X_noisy = np.concatenate((X, noise), axis=1)
 X_noisy = X_noisy[np.random.permutation(X.shape[0])]
-run_svm_cv(X_noisy, y)
+run_svm_cv(X_noisy, y, label="Données bruitées")
 ```
 
-Sans ajout de variables de nuisance, le SVM linéaire obtient une accuracy parfaite à l’entraînement (1.0) et une très bonne performance en test :`r {score_test:.3f}`.
+Sans ajout de variables de nuisance, le SVM linéaire obtient un taux de précision parfait à l’entraînement (1.0) et une très bonne performance en test :`r {score_test:.3f}`.
 En revanche, lorsque l’on ajoute 300 variables bruitées, la performance en test chute fortement (`r {score_test_noisy:.3f}`), tandis que l’entraînement reste à 1.0.
 
 Cela montre que l’ajout de dimensions non informatives dégrade la capacité de généralisation : le classifieur se retrouve à sur-apprendre sur des données bruitées, ce qui entraîne une baisse nette de la précision sur de nouvelles données.
@@ -327,13 +339,13 @@ Cela montre que l’ajout de dimensions non informatives dégrade la capacité d
 ```{python}
 print("Score apres reduction de dimension")
 
-n_components = 200  # jouer avec ce parametre
+n_components = 200  
 pca = PCA(n_components=n_components).fit(X_noisy)
 X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
 
-Avec la réduction de dimension par PCA, le modèle conserve une accuracy parfaite sur l’entraînement mais la performance en test reste faible (≈ `r {score_test_pca:.3f}` pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
+Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ `r {score_test_pca:.3f}` pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
 
 ### Question 7
 

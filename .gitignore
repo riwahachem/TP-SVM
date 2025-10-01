@@ -1,6 +1,7 @@
 # Fichiers compilés Python
 __pycache__/
 *.pyc
+tp_files/
 
 # Environnement virtuel
 .venv/
