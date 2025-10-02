@@ -61,9 +61,7 @@ plt.style.use('ggplot')
 
 Les machines à vecteurs de support (SVM) constituent une méthode de classification supervisée largement utilisée pour leur capacité à séparer efficacement des classes, même dans des espaces de grande dimension. Leur principe repose sur la recherche d’un hyperplan séparateur maximisant la marge entre les classes, avec la possibilité d’utiliser des fonctions noyau afin de gérer des données non linéairement séparables.
 
-Dans ce TP, nous mettons en pratique les SVM à l’aide du package scikit-learn. Les expériences portent à la fois sur des données simulées et sur des jeux de données réels, notamment le jeu de données Iris et une base d’images faciales.
-
-L’objectif est de mieux comprendre le rôle des différents paramètres et choix de modélisation dans la performance d’un SVM, ainsi que les limites et solutions possibles en pratique.
+Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn (qui s’appuie sur la librairie libsvm en C). Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
 
 ### Question 1
 
