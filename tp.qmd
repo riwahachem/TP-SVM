@@ -63,8 +63,14 @@ Les machines à vecteurs de support (SVM) constituent une méthode de classifica
 
 Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn. Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
 
+## Mise en oeuvre sur la base de données Iris
+
+Cette section porte sur la base de données Iris. Les données sont partagées en un ensemble d’apprentissage (75 %) et un ensemble de test (25 %). Nous appliquons un SVM avec noyau linéaire puis polynomial, afin de comparer leurs performances et l’impact du choix du noyau sur la frontière de décision.
 
 ### Question 1
+
+Le noyau linéaire correspond au cas le plus simple des SVM, il consiste à chercher un hyperplan linéaire qui sépare au mieux les deux classes.
+Nous avons restreint l’étude aux classes 1 et 2 du jeu de données Iris et entraîné un SVM à noyau linéaire. Le paramètre de régularisation C, qui contrôle le compromis entre largeur de marge et erreurs de classification, a été optimisé par validation croisée au moyen d’une recherche en grille.
 
 ```{python}
 iris = datasets.load_iris()
@@ -98,10 +104,11 @@ print("Score entraînement :", round(clf_linear.score(X_train, Y_train),3))
 print("Score test :", round(clf_linear.score(X_test, Y_test),3))
 ```
 
-Avec un SVM à noyau linéaire entraîné sur les classes 1 et 2 du jeu de données Iris, le meilleur paramètre trouvé est C ≈ 8.31.
-Le modèle atteint un score d’entraînement de 73% et un score de test de 72%.
+Le meilleur paramètre trouvé est C $\approx$ 8.31. Avec cette valeur, le modèle atteint une précision de 73% sur l'échantillon d'apprentissage et 72% sur l'échantillon de test.
 
 ### Question 2
+
+Le noyau polynomial permet de projeter les données dans un espace de dimension supérieure en utilisant des combinaisons polynomiales des variables d’entrée, ce qui rend possible la séparation de classes non linéairement séparables dans l’espace initial. 
 
 ```{python}
 Cs = list(np.logspace(-3, 3, 5))
@@ -146,13 +153,9 @@ plt.tight_layout()
 plt.draw()
 ```
 
-Un SVM avec noyau polynomial a été testé en faisant varier les paramètres C, gamma et le degré du polynôme.
+Nous avons testé un SVM avec noyau polynomial en faisant varier les paramètres C, $\gamma$ et le degré du polynôme. Le meilleur modèle obtenu correspond en réalité à un polynôme de degré 1, équivalent à un noyau linéaire. 
 
-Le meilleur modèle polynomial obtenu correspond en réalité à un polynôme de degré 1, ce qui revient à un noyau linéaire.
-
-On observe que les scores sont identiques (72%) et en particulier très proches de ceux obtenus avec le SVM linéaire.
-
-La frontière de décision est donc la même qu’avec le noyau linéaire, ce qui montre que, dans ce cas, l’utilisation d’un noyau polynomial n’apporte pas d’amélioration.
+Les scores obtenus ($\approx 72\%$) sont très proches de ceux du SVM linéaire, et la frontière de décision est la même. Cela montre que, dans ce cas, l’utilisation d’un noyau polynomial plus complexe n’apporte pas d’amélioration par rapport au noyau linéaire.
 
 ## SVM GUI
 
@@ -178,15 +181,17 @@ Nous avons généré un jeu de données fortement déséquilibré, composé de 9
 *Figure 2 – Visualisation de la frontière de décision pour C = 0.01*
 </div>
 
-On observe qu’avec C = 1, le SVM maintient une séparation correcte entre les deux classes, y compris pour la minorité, tout en élargissant légèrement la marge.
+On observe qu’avec $C = 1$, le SVM maintient une séparation correcte entre les deux classes, y compris pour la minorité, tout en élargissant légèrement la marge.
 
-En revanche, avec C = 0.01, certains points verts franchissent l’hyperplan et sont mal classés, la frontière devient moins stricte et privilégie clairement la classe majoritaire.
+En revanche, avec $C = 0.01$, certains points verts franchissent l’hyperplan et sont mal classés, la frontière devient moins stricte et privilégie clairement la classe majoritaire.
 
 Ainsi, la diminution de C élargit les marges et accentue le biais en faveur de la classe majoritaire, car le modèle tolère davantage d’erreurs sur la minorité.
 
+Concrètement, cet effet peut être corrigé en ajustant la pondération des erreurs via le paramètre `class_weight` de `SVC`, afin de donner plus de poids à la classe minoritaire. Une autre approche consiste à utiliser une calibration des probabilités (option `probability=True`), permettant de rééquilibrer la décision du classifieur et d’améliorer la prise en compte des classes rares.
+
 ## Classification de visages
 
-Dans cette section, nous appliquons les SVM à un problème de reconnaissance faciale à partir de la base Labeled Faces in the Wild. L’objectif est de distinguer deux individus en extrayant des caractéristiques des images et en entraînant un classifieur SVM.
+Dans cette section, nous appliquons les SVM à un problème de reconnaissance faciale en utilisant la base Labeled Faces in the Wild (LFW). L’objectif est de distinguer deux individus à partir d’images, en extrayant des caractéristiques puis en entraînant un classifieur SVM à noyau linéaire.
 
 ```{python}
 #| include: false
@@ -300,10 +305,9 @@ print(f"Niveau de hasard (majorité) : {max(np.mean(y), 1.-np.mean(y)):.3f}")
 print(f"Taux de précision final sur le test : {clf.score(X_test, y_test):.3f}")
 ```
 
-Lorsque C est très petit, le modèle est trop régularisé et n’arrive pas à bien séparer les classes (sous-apprentissage).
-Autour de C ≈ $1.0 \times 10^{-3}$ , la performance devient optimale et se stabilise.
-Pour des valeurs trop grandes de C, le modèle risque de sur-apprendre sans gain significatif.
-Le meilleur compromis est obtenu avec C ≈ $1.0 \times 10^{-3}$, qui donne un taux de précision de 91% sur le test, bien supérieur au hasard (62%).
+L’analyse de l’impact du paramètre de régularisation C montre que, pour des valeurs très faibles, le modèle est trop contraint et n’arrive pas à séparer correctement les classes, ce qui conduit à un phénomène de sous-apprentissage. Autour de $C \approx 1.0 \times 10^{-3}$, la performance atteint son optimum et se stabilise. En revanche, pour des valeurs trop grandes de C, le modèle tend à sur-apprendre sans gain significatif.
+
+Le meilleur compromis est obtenu pour $C \approx 1.0 \times 10^{-3}$, avec un taux de précision de 91 % sur l’échantillon de test, largement supérieur au niveau de hasard estimé à 62 %.
 
 
 ```{python}
@@ -317,7 +321,7 @@ plot_gallery(images_test, prediction_titles)
 plt.show()
 ```
 
-La prédiction sur l’échantillon de test montre que le modèle arrive à bien distinguer les deux individus.
+La prédiction sur l’échantillon de test montre que le modèle distingue globalement bien les deux individus. Sur les images affichées, la majorité est correctement classée, bien que quelques erreurs subsistent, ce qui illustre les limites du classifieur.
 
 ```{python}
 
@@ -329,9 +333,11 @@ plt.title("Coefficients appris par le SVM ")
 plt.show()
 ```
 
-La visualisation des coefficients montre que le SVM capte les traits distinctifs des visages, confirmant l’efficacité de cette approche pour la classification faciale.
+La visualisation des coefficients appris met en évidence les zones les plus discriminantes des visages utilisées par le SVM. Cela confirme que le modèle capture bien les traits distinctifs permettant de différencier les individus, et illustre l’efficacité de cette approche pour la classification faciale.
 
 ### Question 5
+
+Dans cette partie, nous avons évalué la robustesse du SVM en introduisant des variables de nuisance (300 dimensions supplémentaires générées aléatoirement).
 
 ```{python}
 np.random.seed(42)
@@ -364,24 +370,27 @@ X_noisy = X_noisy[np.random.permutation(X.shape[0])]
 run_svm_cv(X_noisy, y, label="Données bruitées")
 ```
 
-Sans ajout de variables de nuisance, le SVM linéaire obtient un taux de précision parfait à l’entraînement (1.0) et une très bonne performance en test : 0.911 .
-En revanche, lorsque l’on ajoute 300 variables bruitées, la performance en test chute fortement (0.516), tandis que l’entraînement reste à 1.0.
+Sans ajout de variables de nuisance, le SVM linéaire obtient un taux de précision parfait à l’entraînement (1.0) et une excellente performance en test ($\approx 0.91$).
 
-Cela montre que l’ajout de dimensions non informatives dégrade la capacité de généralisation : le classifieur se retrouve à sur-apprendre sur des données bruitées, ce qui entraîne une baisse nette de la précision sur de nouvelles données.
+En revanche, lorsque 300 variables aléatoires bruitées sont ajoutées, la performance en test chute fortement ($\approx 0.52$), alors que l’entraînement reste à 1.0.
+
+Cela met en évidence que l’ajout de dimensions non informatives détériore la capacité de généralisation : le modèle sur-apprend en exploitant le bruit, ce qui entraîne une baisse nette de la précision sur de nouvelles données.
 
 ### Question 6
+
+Pour atténuer l’effet des variables de nuisance, nous avons appliqué une réduction de dimension par analyse en composantes principales (ACP) sur les données bruitées, afin de ne conserver que les composantes expliquant le plus de variance.
 
 ```{python}
 np.random.seed(42)
 print("Score apres reduction de dimension")
 
-n_components = 100  
+n_components = 200  
 pca = PCA(n_components=n_components).fit(X_noisy)
 X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
 
-Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ 0.595 pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
+En pratique, pour de petites valeurs du nombre de composantes, l’algorithme ne converge pas (temps de calcul très long), ce qui nous a conduit à fixer le nombre de composantes à $n=200$. Avec 200 composantes principales, le modèle conserve un taux de précision parfait à l’entraînement, mais la performance en test reste limitée ($\approx 0.484$). Ce résultat montre que, bien que l’ACP réduise l’influence des dimensions inutiles, un trop grand nombre de composantes maintient encore une part importante de bruit. Le choix du nombre optimal de composantes est donc crucial pour améliorer la généralisation du modèle.
 
 ### Question 7
 
@@ -405,3 +414,7 @@ images_train, images_test = images[
 
 
 Cette approche engendre une fuite d’information, dans la mesure où les statistiques issues du jeu de test (moyenne et variance) interviennent dans la transformation des données d’apprentissage. Une telle erreur introduit un biais et conduit à une surestimation de la performance du modèle, puisque l’indépendance du jeu de test n’est plus respectée. La procédure correcte consiste à ajuster la normalisation uniquement sur l’échantillon d’apprentissage, puis à appliquer la transformation ainsi obtenue aux données de test, garantissant ainsi une évaluation fidèle de la capacité de généralisation du classifieur.
+
+## Conclusion
+
+Ce TP nous a permis de mettre en pratique les machines à vecteurs de support sur différents jeux de données. Nous avons observé l’influence du paramètre de régularisation C, l’impact du choix du noyau, ainsi que les limites liées au bruit et au déséquilibre des classes. Nous avons également vu comment des biais dans le prétraitement peuvent fausser l’évaluation des performances. Enfin, l’étude sur les visages a montré l’efficacité des SVM pour la classification d’images, tout en soulignant la nécessité d’un bon choix de paramètres et d’une réduction de dimension adaptée.
