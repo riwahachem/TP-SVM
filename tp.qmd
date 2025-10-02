@@ -63,6 +63,10 @@ Les machines à vecteurs de support (SVM) constituent une méthode de classifica
 
 Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn. Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
 
+## Mise en oeuvre de la base de données Iris
+
+Cette section est destinée à l’étude de la base de données Iris, sur laquelle nous appliquerons un classifieur à vecteurs de support. Afin d’évaluer correctement les performances du modèle, l’ensemble des données est divisé en deux sous-ensembles : un échantillon d’apprentissage représentant 75 % des observations et un échantillon de test correspondant aux 25 % restants. Dans un premier temps, nous considérons un noyau linéaire, puis nous étudions un noyau polynomial, afin de comparer leurs performances respectives et d’analyser l’impact du choix du noyau sur la frontière de décision et la qualité de la classification.
+
 ### Question 1
 
 ```{python}
@@ -181,6 +185,8 @@ En revanche, avec C = 0.01, certains points verts franchissent l’hyperplan et 
 Ainsi, la diminution de C élargit les marges et accentue le biais en faveur de la classe majoritaire, car le modèle tolère davantage d’erreurs sur la minorité.
 
 ## Classification de visages
+
+Dans cette section, nous appliquons les SVM à un problème de reconnaissance faciale à partir de la base Labeled Faces in the Wild. L’objectif est de distinguer deux individus en extrayant des caractéristiques des images et en entraînant un classifieur SVM.
 
 ```{python}
 #| include: false
