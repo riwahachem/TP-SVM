@@ -378,7 +378,7 @@ X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
 
-Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ `r {score_test_pca:.3f}` pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
+Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ {{ score_test_pca:.3f }} pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
 
 ### Question 7
 
