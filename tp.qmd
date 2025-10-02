@@ -5,7 +5,7 @@ lang: fr
 format:
   html:
     theme: flatly
-    toc: true
+    toc: false
     toc-location: left
     toc-depth: 3
     number-sections: false
@@ -21,14 +21,14 @@ format:
     tbl-cap-location: top
   pdf:
     documentclass: scrartcl
-    toc: true
+    toc: false
     number-sections: false
     geometry: "margin=2.2cm"
     fig-pos: "H"
 execute:
   echo: false 
   warning: false
-  cache: true
+  cache: false
 jupyter: python3
 freeze: auto  
 ---
@@ -63,9 +63,6 @@ Les machines à vecteurs de support (SVM) constituent une méthode de classifica
 
 Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn. Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
 
-## Mise en oeuvre de la base de données Iris
-
-Cette section est destinée à l’étude de la base de données Iris, sur laquelle nous appliquerons un classifieur à vecteurs de support. Afin d’évaluer correctement les performances du modèle, l’ensemble des données est divisé en deux sous-ensembles : un échantillon d’apprentissage représentant 75 % des observations et un échantillon de test correspondant aux 25 % restants. Dans un premier temps, nous considérons un noyau linéaire, puis nous étudions un noyau polynomial, afin de comparer leurs performances respectives et d’analyser l’impact du choix du noyau sur la frontière de décision et la qualité de la classification.
 
 ### Question 1
 
@@ -78,8 +75,9 @@ X = X[y != 0, :2]
 y = y[y != 0]
 
 # split train/test set
+X , y = shuffle(X,y, random_state=42)
 X_train, X_test, Y_train, Y_test = train_test_split(
-    X, y, test_size=0.25, random_state=42
+    X, y, test_size=0.25, shuffle=False
 )
 
 # On convertit les labels en entiers
@@ -100,8 +98,8 @@ print("Score entraînement :", round(clf_linear.score(X_train, Y_train),3))
 print("Score test :", round(clf_linear.score(X_test, Y_test),3))
 ```
 
-Avec un SVM à noyau linéaire entraîné sur les classes 1 et 2 du jeu de données Iris, le meilleur paramètre trouvé est C ≈ 0.841.
-Le modèle atteint un score d’entraînement de 74% et un score de test de 68%.
+Avec un SVM à noyau linéaire entraîné sur les classes 1 et 2 du jeu de données Iris, le meilleur paramètre trouvé est C ≈ 8.31.
+Le modèle atteint un score d’entraînement de 73% et un score de test de 72%.
 
 ### Question 2
 
@@ -151,16 +149,18 @@ plt.draw()
 Un SVM avec noyau polynomial a été testé en faisant varier les paramètres C, gamma et le degré du polynôme.
 
 Le meilleur modèle polynomial obtenu correspond en réalité à un polynôme de degré 1, ce qui revient à un noyau linéaire.
-On observe que les scores sont identiques à ceux obtenus avec le SVM linéaire (74% sur l’entraînement et 68% sur le test).
+
+On observe que les scores sont identiques (72%) et en particulier très proches de ceux obtenus avec le SVM linéaire.
+
 La frontière de décision est donc la même qu’avec le noyau linéaire, ce qui montre que, dans ce cas, l’utilisation d’un noyau polynomial n’apporte pas d’amélioration.
 
 ## SVM GUI
 
 ### Question 3
 
-Dans le script `svm_gui.py`, le paramètre de régularisation C contrôle le compromis entre largeur de la marge et pénalisation des erreurs de classification.
+Dans cette partie nous avons utilisé le script `svm_gui.py`, pour étudier le paramètre de régularisation C.
 
-Lorsque C est grand, l’algorithme cherche à classer correctement tous les points, quitte à réduire la marge et à ajuster fortement la frontière de décision.
+On observe que lorsque C est grand, l’algorithme cherche à classer correctement tous les points, quitte à réduire la marge et à ajuster fortement la frontière de décision.
 
 Lorsque C est petit, les erreurs sont davantage tolérées, la marge s’élargit et la frontière se déplace au profit de la classe majoritaire.
 
@@ -178,7 +178,7 @@ Nous avons généré un jeu de données fortement déséquilibré, composé de 9
 *Figure 2 – Visualisation de la frontière de décision pour C = 0.01*
 </div>
 
-On observe qu’avec C = 1, la SVM maintient une séparation correcte entre les deux classes, y compris pour la minorité, tout en élargissant légèrement la marge.
+On observe qu’avec C = 1, le SVM maintient une séparation correcte entre les deux classes, y compris pour la minorité, tout en élargissant légèrement la marge.
 
 En revanche, avec C = 0.01, certains points verts franchissent l’hyperplan et sont mal classés, la frontière devient moins stricte et privilégie clairement la classe majoritaire.
 
@@ -257,6 +257,7 @@ images_train, images_test = images[
 ### Question 4
 
 ```{python}
+np.random.seed(42)
 print("=== SVM linéaire : influence de C ===")
 t0 = time()
 
@@ -302,7 +303,7 @@ print(f"Taux de précision final sur le test : {clf.score(X_test, y_test):.3f}")
 Lorsque C est très petit, le modèle est trop régularisé et n’arrive pas à bien séparer les classes (sous-apprentissage).
 Autour de C ≈ $1.0 \times 10^{-3}$ , la performance devient optimale et se stabilise.
 Pour des valeurs trop grandes de C, le modèle risque de sur-apprendre sans gain significatif.
-Le meilleur compromis est obtenu avec C ≈ $1.0 \times 10^{-3}$, qui donne un taux de précision de `r clf.score(X_test, y_test)*100:.1f`% sur le test, bien supérieur au hasard (`r max(np.mean(y), 1.-np.mean(y)):.1f`%).
+Le meilleur compromis est obtenu avec C ≈ $1.0 \times 10^{-3}$, qui donne un taux de précision de 91% sur le test, bien supérieur au hasard (62%).
 
 
 ```{python}
@@ -333,6 +334,7 @@ La visualisation des coefficients montre que le SVM capte les traits distinctifs
 ### Question 5
 
 ```{python}
+np.random.seed(42)
 def run_svm_cv(_X, _y, label=""):
     _indices = np.random.permutation(_X.shape[0])
     _train_idx, _test_idx = _indices[:_X.shape[0] // 2], _indices[_X.shape[0] // 2:]
@@ -362,32 +364,44 @@ X_noisy = X_noisy[np.random.permutation(X.shape[0])]
 run_svm_cv(X_noisy, y, label="Données bruitées")
 ```
 
-Sans ajout de variables de nuisance, le SVM linéaire obtient un taux de précision parfait à l’entraînement (1.0) et une très bonne performance en test :`r {score_test:.3f}`.
-En revanche, lorsque l’on ajoute 300 variables bruitées, la performance en test chute fortement (`r {score_test_noisy:.3f}`), tandis que l’entraînement reste à 1.0.
+Sans ajout de variables de nuisance, le SVM linéaire obtient un taux de précision parfait à l’entraînement (1.0) et une très bonne performance en test : 0.911 .
+En revanche, lorsque l’on ajoute 300 variables bruitées, la performance en test chute fortement (0.516), tandis que l’entraînement reste à 1.0.
 
 Cela montre que l’ajout de dimensions non informatives dégrade la capacité de généralisation : le classifieur se retrouve à sur-apprendre sur des données bruitées, ce qui entraîne une baisse nette de la précision sur de nouvelles données.
 
 ### Question 6
 
 ```{python}
+np.random.seed(42)
 print("Score apres reduction de dimension")
 
-n_components = 200  
+n_components = 100  
 pca = PCA(n_components=n_components).fit(X_noisy)
 X_pca = pca.transform(X_noisy)
 run_svm_cv(X_pca, y)
 ```
 
-Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ {{ score_test_pca:.3f }} pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
+Avec la réduction de dimension par PCA, le modèle conserve un taux de précision parfait sur l’entraînement mais la performance en test reste faible (≈ 0.595 pour 200 composantes). Cela s’explique par le fait qu’un trop grand nombre de composantes conserve encore beaucoup de bruit.
 
 ### Question 7
 
-Dans le script fourni, la normalisation est effectuée avant la séparation entre apprentissage et test, comme l’illustre l’extrait de code de la Figure 3.
+Dans le script fourni, la normalisation est effectuée avant la séparation entre apprentissage et test, comme l’illustre l’extrait de code ci-dessous.
 
-![](images/code.png){fig-align="center" width=90%}
+```{python}
+#| echo: true
+#| eval: false
+X = (np.mean(images, axis=3)).reshape(n_samples, -1)
 
-<div style="text-align: center;">
-*Figure 3 – Extrait du code de normalisation avant séparation train/test*
-</div>
+X -= np.mean(X, axis=0)
+X /= np.std(X, axis=0)
+
+indices = np.random.permutation(X.shape[0])
+train_idx, test_idx = indices[:X.shape[0] // 2], indices[X.shape[0] // 2:]
+X_train, X_test = X[train_idx, :], X[test_idx, :]
+y_train, y_test = y[train_idx], y[test_idx]
+images_train, images_test = images[
+    train_idx, :, :, :], images[test_idx, :, :, :]
+```
+
 
 Cette approche engendre une fuite d’information, dans la mesure où les statistiques issues du jeu de test (moyenne et variance) interviennent dans la transformation des données d’apprentissage. Une telle erreur introduit un biais et conduit à une surestimation de la performance du modèle, puisque l’indépendance du jeu de test n’est plus respectée. La procédure correcte consiste à ajuster la normalisation uniquement sur l’échantillon d’apprentissage, puis à appliquer la transformation ainsi obtenue aux données de test, garantissant ainsi une évaluation fidèle de la capacité de généralisation du classifieur.
