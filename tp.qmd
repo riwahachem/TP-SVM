@@ -149,9 +149,31 @@ La frontière de décision est donc la même qu’avec le noyau linéaire, ce qu
 
 ### Question 3
 
-Dans le script `svm_gui.py`, le paramètre de régularisation C contrôle la complexité du classifieur dans la mesure où il détermine le coût d’une mauvaise classification : plus C est grand, plus la règle obtenue est complexe. Ce paramètre peut être ajusté directement depuis l’interface graphique.
-Lorsque l’on sélectionne un noyau linéaire et que l’on diminue la valeur de C, on constate que la frontière de décision devient moins stricte. Concrètement, certains points, bien que séparables, se retrouvent du mauvais côté de l’hyperplan. Ainsi, le modèle accepte davantage d’erreurs d’entraînement afin de maximiser la marge séparatrice.
-Dans un contexte de classes déséquilibrées (par exemple 90 % d’exemples d’une classe contre 10 % pour l’autre), une valeur faible de C amplifie ce déséquilibre, c'est à dire que le classifieur privilégie la classe majoritaire et néglige les erreurs sur la classe minoritaire.
+Dans le script `svm_gui.py`, le paramètre de régularisation C contrôle le compromis entre largeur de la marge et pénalisation des erreurs de classification.
+
+Lorsque C est grand, l’algorithme cherche à classer correctement tous les points, quitte à réduire la marge et à ajuster fortement la frontière de décision.
+
+Lorsque C est petit, les erreurs sont davantage tolérées, la marge s’élargit et la frontière se déplace au profit de la classe majoritaire.
+
+Nous avons généré un jeu de données fortement déséquilibré, composé de 90 points appartenant à une classe et seulement 10 à l’autre. Nous avons ensuite étudié l’effet du paramètre C avec un noyau linéaire.
+
+![](images/C_1.png){fig-align="center" width=60%}
+
+<div style="text-align: center;">
+*Figure 1 – Visualisation de la frontière de décision pour C = 1*
+</div>
+
+![](images/C_0.01.png){fig-align="center" width=90%}
+
+<div style="text-align: center;">
+*Figure 2 – Visualisation de la frontière de décision pour C = 0.01*
+</div>
+
+On observe qu’avec C = 1, la SVM maintient une séparation correcte entre les deux classes, y compris pour la minorité, tout en élargissant légèrement la marge.
+
+En revanche, avec C = 0.01, certains points verts franchissent l’hyperplan et sont mal classés, la frontière devient moins stricte et privilégie clairement la classe majoritaire.
+
+Ainsi, la diminution de C élargit les marges et accentue le biais en faveur de la classe majoritaire, car le modèle tolère davantage d’erreurs sur la minorité.
 
 ## Classification de visages
 
