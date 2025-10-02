@@ -61,7 +61,7 @@ plt.style.use('ggplot')
 
 Les machines à vecteurs de support (SVM) constituent une méthode de classification supervisée largement utilisée pour leur capacité à séparer efficacement des classes, même dans des espaces de grande dimension. Leur principe repose sur la recherche d’un hyperplan séparateur maximisant la marge entre les classes, avec la possibilité d’utiliser des fonctions noyau afin de gérer des données non linéairement séparables.
 
-Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn (qui s’appuie sur la librairie libsvm en C). Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
+Le but de ce TP est de mettre en pratique les SVM sur des données simulées et des jeux de données réels, à l’aide du package scikit-learn. Nous cherchons notamment à comprendre comment contrôler les paramètres influençant leur flexibilité, tels que les hyperparamètres et le choix du noyau.
 
 ### Question 1
 
@@ -376,7 +376,12 @@ Avec la réduction de dimension par PCA, le modèle conserve un taux de précisi
 
 ### Question 7
 
-Dans le script, la normalisation est faite avant de séparer les données en apprentissage et test, par les lignes :
-`X -= np.mean(X, axis=0)` et `X /= np.std(X, axis=0)`.
-Cela pose problème car les statistiques du test (moyenne, variance) sont utilisées pour transformer les données d’entraînement.
-La bonne pratique consiste à calculer la normalisation uniquement sur l’échantillon d’apprentissage, puis à appliquer cette transformation au test. Sinon, les performances rapportées ne reflètent pas la capacité réelle de généralisation du modèle.
+Dans le script fourni, la normalisation est effectuée avant la séparation entre apprentissage et test, comme l’illustre l’extrait de code de la Figure 3.
+
+![](images/code.png){fig-align="center" width=90%}
+
+<div style="text-align: center;">
+*Figure 3 – Extrait du code de normalisation avant séparation train/test*
+</div>
+
+Cette approche engendre une fuite d’information, dans la mesure où les statistiques issues du jeu de test (moyenne et variance) interviennent dans la transformation des données d’apprentissage. Une telle erreur introduit un biais et conduit à une surestimation de la performance du modèle, puisque l’indépendance du jeu de test n’est plus respectée. La procédure correcte consiste à ajuster la normalisation uniquement sur l’échantillon d’apprentissage, puis à appliquer la transformation ainsi obtenue aux données de test, garantissant ainsi une évaluation fidèle de la capacité de généralisation du classifieur.
