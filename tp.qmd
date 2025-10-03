@@ -65,7 +65,7 @@ Le but de ce TP est de mettre en pratique les SVM sur des données simulées et 
 
 ## Mise en oeuvre sur la base de données Iris
 
-Cette section porte sur la base de données Iris. Les données sont partagées en un ensemble d’apprentissage (75 %) et un ensemble de test (25 %). Nous appliquons un SVM avec noyau linéaire puis polynomial, afin de comparer leurs performances et l’impact du choix du noyau sur la frontière de décision.
+Dans cette première section, les données seront partagées en un ensemble d’apprentissage (75 %) et un ensemble de test (25 %). Nous appliquerons un SVM avec noyau linéaire puis polynomial, afin de comparer leurs performances et l’impact du choix du noyau sur la frontière de décision.
 
 ### Question 1
 
@@ -307,7 +307,7 @@ print(f"Taux de précision final sur le test : {clf.score(X_test, y_test):.3f}")
 
 L’analyse de l’impact du paramètre de régularisation C montre que, pour des valeurs très faibles, le modèle est trop contraint et n’arrive pas à séparer correctement les classes, ce qui conduit à un phénomène de sous-apprentissage. Autour de $C \approx 1.0 \times 10^{-3}$, la performance atteint son optimum et se stabilise. En revanche, pour des valeurs trop grandes de C, le modèle tend à sur-apprendre sans gain significatif.
 
-Le meilleur compromis est obtenu pour $C \approx 1.0 \times 10^{-3}$, avec un taux de précision de 91 % sur l’échantillon de test, largement supérieur au niveau de hasard estimé à 62 %.
+Le meilleur compromis est obtenu pour $C \approx 1.0 \times 10^{-3}$, avec un taux de précision d'environ 90 % sur l’échantillon de test, largement supérieur au niveau de hasard estimé à 62 %.
 
 
 ```{python}
